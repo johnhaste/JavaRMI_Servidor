@@ -66,10 +66,11 @@ public class Servidor extends UnicastRemoteObject implements InterfaceServ {
     public byte[] fazerDownload(String arquivo, InterfaceCli refCliente) throws RemoteException {
         if(this.listaDeArquivos.contains(arquivo))
         {
-            System.out.println("SELECIONANDO O ARQUIVO SOLICITADO EM: .\\ARQUIVOS_SERVIDOR\\"+arquivo);
-            Path path = Paths.get("ARQUIVOS_SERVIDOR\\"+arquivo);
+            System.out.println("SELECIONANDO O ARQUIVO SOLICITADO EM: .\\PATH\\"+arquivo);
+            Path path = Paths.get(file.getName()+"\\"+arquivo);           
             
             try {
+                byte[] arq = Files.readAllBytes(path);
                 return Files.readAllBytes(path);
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -82,6 +83,7 @@ public class Servidor extends UnicastRemoteObject implements InterfaceServ {
     @Override
     public void registrarInteresse(String arquivo, InterfaceCli refCliente) throws RemoteException {
         this.listaDeInteressesArq.add(new Interesse(arquivo, refCliente));
+        System.out.println("Interesse de " + refCliente.toString() + " registrado para o arquivo " + arquivo);
     }
     //Retira o interesse por determinado arquivo atrelado ao cliente solicitante
     @Override
@@ -99,7 +101,7 @@ public class Servidor extends UnicastRemoteObject implements InterfaceServ {
             if(i.getCliente() == refCliente)
                 this.listaDeInteressesArq.remove(i);
         }
-        System.out.println("O cliente "+refCliente.toString()+" removeu todos os seus interesses em arquivos");
+        System.out.println("O cliente " + refCliente.toString() + " removeu todos os seus interesses em arquivos");
     }
 
     private void verificaInteresse(String nomeArquivo) throws RemoteException {
