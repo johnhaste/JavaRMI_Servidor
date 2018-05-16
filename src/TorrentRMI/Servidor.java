@@ -11,6 +11,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -81,16 +82,24 @@ public class Servidor extends UnicastRemoteObject implements InterfaceServ {
     }
     //Salva o interesse por um determinado arquivo na lista virtual de interesses
     @Override
-    public void registrarInteresse(String arquivo, InterfaceCli refCliente) throws RemoteException {
-        this.listaDeInteressesArq.add(new Interesse(arquivo, refCliente));
-        System.out.println("Interesse de " + refCliente.toString() + " registrado para o arquivo " + arquivo);
+    public void registrarInteresse(String arquivo, InterfaceCli refCliente, long tempo) throws RemoteException {
+        this.listaDeInteressesArq.add(new Interesse(arquivo, refCliente, tempo));
+        System.out.println("Interesse de " + refCliente.toString() + 
+                " registrado para o arquivo " + arquivo + "Até as: " + 
+                LocalDateTime.now().plusSeconds(tempo).toString());
     }
     //Retira o interesse por determinado arquivo atrelado ao cliente solicitante
     @Override
     public void cancelarInteresse(String arquivo, InterfaceCli refCliente) throws RemoteException {
         for(Interesse i:this.listaDeInteressesArq){
-            if(i.getArquivo().equals(arquivo) && i.getCliente() == refCliente)
+            System.out.println("Controle:" + i.toString());
+            if(i.getHoraFim().isAfter(LocalDateTime.now())){
                 this.listaDeInteressesArq.remove(i);
+                continue;
+            }
+            if(i.getArquivo().equals(arquivo) && i.getCliente() == refCliente){
+                this.listaDeInteressesArq.remove(i);
+            }     
         }
         System.out.println("O cliente "+refCliente.toString()+" removeu seu interesse no arquivo "+arquivo);
     }
@@ -106,8 +115,20 @@ public class Servidor extends UnicastRemoteObject implements InterfaceServ {
 
     private void verificaInteresse(String nomeArquivo) throws RemoteException {
         for(Interesse i:this.listaDeInteressesArq){
-            if(i.getArquivo().equals(nomeArquivo))
+            if(i.getArquivo().equals(nomeArquivo) && i.getHoraFim().isAfter(LocalDateTime.now()))
                 i.getCliente().notificarEvento("O arquivo " + nomeArquivo + "que você havia solicitado já está disponível.");
         }
+    }
+    
+    public ArrayList<String> getMeusInteresses(InterfaceCli refCliente) throws RemoteException {
+        ArrayList<String> interesses = new ArrayList<>();
+        for(Interesse i:this.listaDeInteressesArq){
+            if(i.getCliente().equals(refCliente) && i.getHoraFim().isAfter(LocalDateTime.now()))
+                interesses.add(i.getArquivo());
+        }
+        System.out.println(LocalDateTime.now().toString());
+        System.out.println("Interesses vindos");
+        System.out.println(interesses.toString());
+        return interesses;
     }
 }

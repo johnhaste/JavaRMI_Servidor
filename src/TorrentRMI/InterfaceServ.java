@@ -9,7 +9,8 @@ public interface InterfaceServ extends Remote{
     public void fazerUpload(byte[] arquivo, String nomeArquivo, InterfaceCli refCliente) throws RemoteException;
     public ArrayList<String> consultarArquivos(InterfaceCli refCliente) throws RemoteException;
     public byte[] fazerDownload(String arquivo, InterfaceCli refCliente) throws RemoteException;
-    public void registrarInteresse(String arquivo, InterfaceCli refCliente) throws RemoteException;
+    public void registrarInteresse(String arquivo, InterfaceCli refCliente, long tempo) throws RemoteException;
     public void cancelarInteresse(String arquivo, InterfaceCli refCliente) throws RemoteException;
     public void cancelarTodosOsInteresses(InterfaceCli refCliente) throws RemoteException;
+    public ArrayList<String> getMeusInteresses(InterfaceCli refCliente) throws RemoteException;
 }
